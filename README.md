@@ -2,7 +2,8 @@
 
 Official pytorch implementation of the following paper:
 <p align="left">
-[OmniTokenizer: A Joint Image-Video Tokenizer for Visual Generation](https://arxiv.org/abs/). <br>
+OmniTokenizer: A Joint Image-Video Tokenizer for Visual Generation. 
+<br>
 <a href="https://www.wangjunke.info/">Junke Wang</a><sup>1,2</sup>, <a href="https://enjoyyi.github.io/">Yi Jiang</a><sup>3</sup>, <a href="https://shallowyuan.github.io/">Zehuan Yuan</a><sup>3</sup>, <a href="./">Binyue Peng</a><sup>3</sup>, <a href="https://zxwu.azurewebsites.net/">Zuxuan Wu</a><sup>1,2</sup>, <a href="https://fvl.fudan.edu.cn/">Yu-Gang Jiang</a><sup>1,2</sup>
 <br>
 <sup>1</sup>Shanghai Key Lab of Intell. Info. Processing, School of CS, Fudan University <br>
@@ -19,6 +20,8 @@ We introduce OmniTokenizer, a joint imgae-video tokenizer which features the fol
 - 🥇 **State-of-the-art reconstruction performance** on both image and video datasets;
 - ⚡ High adaptability to **high resolution** and **long** video inputs;
 - 🔥 Equipped with it, both **language model** and **diffusion model** could achieve competitive visual generation results.
+
+Please refer to our [project page](https://www.wangjunke.info/OmniTokenizer/) for the reconstruction and generation results by OmniTokenizer.
 
 ## Setup
 

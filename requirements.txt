@@ -1,0 +1,17 @@
+einops
+ftfy
+h5py
+imageio
+pytorch-lightning==1.5.4
+regex
+scikit-video
+tqdm
+fairscale
+lightning
+diffusers
+accelerate
+lpips
+tensorflow
+numpy==1.26.2
+scipy
+opencv-python

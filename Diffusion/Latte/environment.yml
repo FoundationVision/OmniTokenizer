@@ -1,0 +1,21 @@
+name: latte
+channels:
+  - pytorch
+  - nvidia
+dependencies:
+  - python >= 3.10
+  - pytorch > 2.0.0
+  - torchvision
+  - pytorch-cuda=11.7
+  - pip:
+    - timm
+    - diffusers[torch]==0.24.0
+    - accelerate
+    - tensorboard
+    - einops
+    - transformers
+    - av
+    - scikit-image
+    - decord
+    - pandas
+    - imageio-ffmpeg

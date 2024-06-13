@@ -1,0 +1,35 @@
+# path:
+ckpt: "reproduce_latte_omnitokenizer_ucf101_17frames_bs5x8/000-Latte-XL-2-omnitokenizer-F17S3-ucf101/checkpoints/1000000.pt"
+save_video_path: "./sample_videos_omnitokenizer/"
+
+vae_type: "omnitokenizer"
+pretrained_model_path: imagenet_ucf_vae.ckpt
+
+# model config: 
+model: Latte-XL/2-omnitokenizer
+num_frames: 17
+image_size: 256 # choices=[256, 512]
+frame_interval: 3
+fixed_spatial: False
+attention_bias: True
+learn_sigma: True
+extras: 2 # [1, 2] 1 unconditional generation, 2 class-conditional generation
+num_classes: 101
+
+# model speedup
+use_compile: False
+use_fp16: False
+
+# sample config:
+seed:
+sample_method: 'ddpm'
+num_sampling_steps: 250
+cfg_scale: 7.0
+run_time: 12
+num_sample: 1
+sample_names: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+negative_name: 101
+
+# ddp sample config
+per_proc_batch_size: 1
+num_fvd_samples: 2048

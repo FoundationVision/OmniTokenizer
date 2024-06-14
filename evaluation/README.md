@@ -4,6 +4,12 @@
 
 For the evaluation of visual reconstruction performance, we report the reconstruction FID / FVD on the whole validation split. Run ```recon_vqgan.py``` and the rFID / rFVD will be computed directly.
 
+Note that you can also evaluate the rFID on your own datasets:
+
+```
+python3 evaluation/pytorch-fid/src/pytorch_fid/__main__.py {PATH_TO_GENERATED_IMGS} {PATH_TO_GENERATED_IMGS}
+```
+
 
 ## Image Generation
 

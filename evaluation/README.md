@@ -7,7 +7,7 @@ For the evaluation of visual reconstruction performance, we report the reconstru
 Note that you can also evaluate the rFID on your own datasets:
 
 ```
-python3 evaluation/pytorch-fid/src/pytorch_fid/__main__.py {PATH_TO_GENERATED_IMGS} {PATH_TO_GENERATED_IMGS}
+python3 pytorch-fid/src/pytorch_fid/__main__.py {PATH_TO_GENERATED_IMGS} {PATH_TO_GENERATED_IMGS}
 ```
 
 

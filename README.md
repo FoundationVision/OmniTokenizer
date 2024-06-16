@@ -16,7 +16,7 @@ Official pytorch implementation of the following paper:
 </p>
 
 
-We introduce OmniTokenizer, a joint imgae-video tokenizer which features the following properties:
+We introduce OmniTokenizer, a joint image-video tokenizer which features the following properties:
 - 🚀 **One model** and **one weight** for joint image and video tokenization;
 - 🥇 **State-of-the-art reconstruction performance** on both image and video datasets;
 - ⚡ High adaptability to **high resolution** and **long** video inputs;

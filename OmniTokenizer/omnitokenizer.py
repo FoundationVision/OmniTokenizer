@@ -17,49 +17,7 @@ from .utils import shift_dim, adopt_weight
 from .modules import LPIPS, Codebook
 from .modules.attention import Transformer
 from .base import Normalize, NLayerDiscriminator, NLayerDiscriminator3D
-
-from OmniTokenizer.modules.vae import DiagonalGaussianDistribution
-
-
-class CheckpointFunction(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, run_function, length, *args):
-        ctx.run_function = run_function
-        ctx.input_tensors = list(args[:length])
-        ctx.input_params = list(args[length:])
-        ctx.gpu_autocast_kwargs = {
-            "enabled": torch.is_autocast_enabled(),
-            "dtype": torch.get_autocast_gpu_dtype(),
-            "cache_enabled": torch.is_autocast_cache_enabled(),
-        }
-        with torch.no_grad():
-            output_tensors = ctx.run_function(*ctx.input_tensors)
-        return output_tensors
-
-    @staticmethod
-    def backward(ctx, *output_grads):
-        ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors]
-        # ctx.input_tensors = [x.detach().requires_grad_(True) for x in ctx.input_tensors if x is not None]
-        # ctx.input_tensors = [x.detach().requires_grad_(True) if x is not None else None for x in ctx.input_tensors]
-        # Ensure all tensors have requires_grad set to True
-        ctx.input_params = [p.requires_grad_(True) for p in ctx.input_params]
-        with torch.enable_grad(), torch.cuda.amp.autocast(**ctx.gpu_autocast_kwargs):
-            # Fixes a bug where the first op in run_function modifies the
-            # Tensor storage in place, which is not allowed for detach()'d
-            # Tensors.
-            shallow_copies = [x.view_as(x) for x in ctx.input_tensors]
-            # shallow_copies = [x.view_as(x) if x is not None else None for x in ctx.input_tensors]
-            output_tensors = ctx.run_function(*shallow_copies)
-        input_grads = torch.autograd.grad(
-            output_tensors,
-            ctx.input_tensors + ctx.input_params,
-            output_grads,
-            allow_unused=True,
-        )
-        del ctx.input_tensors
-        del ctx.input_params
-        del output_tensors
-        return (None, None) + input_grads
+from .modules.vae import DiagonalGaussianDistribution
 
 
 def logits_laplace(x, x_recons, logit_laplace_eps=0.1):
@@ -666,6 +624,8 @@ class VQGAN(pl.LightningModule):
     def configure_optimizers(self):
         opt_ae = torch.optim.Adam(list(self.encoder.parameters())+
                                     list(self.decoder.parameters())+
+                                    list(self.pre_vq_conv.parameters())+
+                                    list(self.post_vq_conv.parameters())+
                                     list(self.codebook.parameters()),
                                     lr=self.args.lr, betas=(0.5, 0.9))
         

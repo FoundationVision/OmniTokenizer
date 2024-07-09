@@ -85,8 +85,7 @@ class VQGAN(pl.LightningModule):
 
         if not hasattr(args, "logitslaplace_weight"):
             args.logitslaplace_weight = 0.
-
-        self.use_checkpoint = args.use_checkpoint
+        
         self.logitslaplace_weight = args.logitslaplace_weight
 
         if not hasattr(args, "gen_upscale"):
@@ -355,14 +354,14 @@ class VQGAN(pl.LightningModule):
                 )
                 H = W = target_resolution
         
-        z = self.pre_vq_conv(self.encoder(x, is_image, use_checkpoint=self.use_checkpoint))
+        z = self.pre_vq_conv(self.encoder(x, is_image))
         
         if not self.use_vae:
             if self.l2_code and not self.use_external_codebook:
                 z = F.normalize(z, p=2, dim=1)
 
             vq_output = self.codebook(z)
-            x_recon = self.decoder(self.post_vq_conv(vq_output['embeddings']), is_image, use_checkpoint=self.use_checkpoint)
+            x_recon = self.decoder(self.post_vq_conv(vq_output['embeddings']), is_image)
         
         else:
             posterior = DiagonalGaussianDistribution(z)
@@ -917,7 +916,7 @@ class OmniTokenizer_Encoder(nn.Module):
         return tokens
 
     
-    def forward(self, video, is_image, mask=None, use_checkpoint=False):
+    def forward(self, video, is_image, mask=None):
         # 4 is BxCxHxW (for images), 5 is BxCxFxHxW
         assert video.ndim in {4, 5}
 
@@ -945,10 +944,7 @@ class OmniTokenizer_Encoder(nn.Module):
         else:
             tokens = first_frame_tokens
 
-        if not use_checkpoint:
-            return self.encode(tokens)
-        else:
-            return checkpoint.checkpoint(self.encode, tokens)
+        return self.encode(tokens)
 
 
 class OmniTokenizer_Decoder(nn.Module):
@@ -1102,7 +1098,7 @@ class OmniTokenizer_Decoder(nn.Module):
         return recon_video
     
 
-    def forward(self, tokens, is_image, mask=None, use_checkpoint=False):
+    def forward(self, tokens, is_image, mask=None):
         # expected input: b d t h w -> b t h w d
         if tokens.shape[2] > 1:
             first_frame_tokens = tokens[:, :, 0:1]
@@ -1113,10 +1109,7 @@ class OmniTokenizer_Decoder(nn.Module):
         tokens = self.spatial_up(tokens)
         tokens = tokens.permute(0, 2, 3, 4, 1).contiguous()
 
-        if not use_checkpoint:
-            recon_video = self.decode(tokens)
-        else:
-            recon_video = checkpoint.checkpoint(self.decode, tokens)
+        recon_video = self.decode(tokens)
 
         # handle shape if we are training on images only
         returned_recon = rearrange(

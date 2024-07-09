@@ -1,6 +1,6 @@
 # Stage1: Image-only training on a fixed resolution
 python3 vqgan_train.py --tokenizer 'omnitokenizer' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 2 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --num_nodes 4 --gpus 8 --sync_batchnorm --batch_size 8 --num_workers 8 --grad_accumulates 1 --grad_clip_val 1.0 --apply_noise --apply_blur \
@@ -14,7 +14,7 @@ python3 vqgan_train.py --tokenizer 'omnitokenizer' --patch_embed 'linear' --patc
 
 # Stage2: Image and Video joint training on multiple resolutions
 python3 vqgan_train.py --tokenizer 'omnitokenizer' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 4 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --num_nodes 4 --gpus 8 --sync_batchnorm --num_workers 8 --grad_accumulates 2 --force_alternation --grad_clip_val 1.0 --apply_noise \
@@ -29,7 +29,7 @@ python3 vqgan_train.py --tokenizer 'omnitokenizer' --patch_embed 'linear' --patc
 
 # Stage3: Finetuning w/ KL loss to train a VAE
 python3 vqgan_train.py --tokenizer 'omnitokenizer' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 4 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --num_nodes 4 --gpus 8 --sync_batchnorm --num_workers 8 --grad_accumulates 2 --force_alternation --grad_clip_val 1.0 --apply_noise \

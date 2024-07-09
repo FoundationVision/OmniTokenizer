@@ -313,26 +313,36 @@ class PEG(nn.Module):
         assert not (needs_shape and not exists(shape))
 
         orig_shape = x.shape
+        temporal = False
         if needs_shape:
-            x = x.reshape(*shape, -1)
+            B, T, H, W = shape
+            # TO FIX:
+            #if x.shape[1] == T:
+            #    temporal = True
+            #    x = x.reshape(B, H, W, T, -1).permute(0, 3, 1, 2, 4) # B T H W C
+            #else:
+            x = x.reshape(B, T, H, W, -1)
         
-        x = rearrange(x, 'b ... d -> b d ...')
+        x = rearrange(x, 'b ... d -> b d ...') # B T H W C -> B C T H W
 
         frame_padding = (2, 0) if self.causal else (1, 1)
 
         x = F.pad(x, (1, 1, 1, 1, *frame_padding), value=0.)
         x = self.dsconv(x)
 
-        x = rearrange(x, 'b d ... -> b ... d')
+        x = rearrange(x, 'b d ... -> b ... d') # B C T H W -> B T H W C
 
         if needs_shape:
-            x = rearrange(x, 'b ... d -> b (...) d')
+            # TO FIX:
+            #if temporal:
+            #    x = rearrange(x, 'b t h w c -> (b h w) t c')
+            #else:
+            x = rearrange(x, 'b t h w c -> (b t) (h w) c')
 
-        return x.reshape(orig_shape)
+        return x
+
 
 # attention
-
-
 class Attention(nn.Module):
     def __init__(
         self,
@@ -392,7 +402,6 @@ class Attention(nn.Module):
         mask=None,
         context=None,
         is_spatial=True,
-        q_stride=1,
     ):
         batch, device, dtype = x.shape[0], x.device, x.dtype
 
@@ -418,14 +427,7 @@ class Attention(nn.Module):
         q, k, v = map(lambda t: rearrange(
             t, 'b n h d -> b h n d', h=self.heads), (q, k, v))
 
-        B, H, _, D = q.shape    
-        if q_stride > 1:
-            # Refer to Unroll to see how this performs a maxpool-Nd
-            q = (
-                q.view(B, H, q_stride, -1, D)
-                .max(dim=2)
-                .values
-            )
+        B, H, _, D = q.shape
 
         if self.num_null_kv > 0:
             nk, nv = repeat(self.null_kv, 'h (n r) d -> b h n r d',
@@ -464,8 +466,6 @@ class Attention(nn.Module):
                     # handle q_pooling here
                     q_len = sim.shape[2]
                     kv_len = sim.shape[3]
-                    q_stride = kv_len // q_len
-                    attn_bias = attn_bias[:, ::q_stride]
                     
                 sim = sim + attn_bias
 
@@ -663,21 +663,15 @@ class Transformer(nn.Module):
         context=None,
         self_attn_mask=None,
         cross_attn_context_mask=None,
-        q_strides=None,
         is_spatial=True
     ):
-
-        if q_strides is None:
-            q_strides = '1' * len(self.layers)
         
-        for blk, q_stride, (peg, self_attn, cross_attn, ff) in zip(self.block, q_strides, self.layers):
+        for blk, (peg, self_attn, cross_attn, ff) in zip(self.block, self.layers):
             if exists(peg):
                 x = peg(x, shape=video_shape) + x
 
             if isinstance(self_attn, Attention):
-                x = self_attn(x, mask=self_attn_mask, q_stride=int(q_stride), is_spatial=is_spatial) + do_pool(x, int(q_stride))
-                # x = checkpoint.checkpoint(self_attn, x, self_attn_mask, None, attn_bias, int(q_stride))
-
+                x = self_attn(x, mask=self_attn_mask, is_spatial=is_spatial) + x
             elif isinstance(self_attn, WindowAttention):
                 x = self_attn(x) + x
             else:
@@ -695,10 +689,5 @@ class Transformer(nn.Module):
             
             elif blk in ['n', 'r']:
                 video_shape = (video_shape[0], video_shape[1], int(video_shape[2]*2), int(video_shape[3]*2))
-            
-
-            if q_stride != '1':
-                down_ratio = int(math.sqrt(int(q_stride)))
-                video_shape = (video_shape[0], video_shape[1], video_shape[2]//down_ratio, video_shape[3]//down_ratio)
-
+        
         return self.norm_out(x)

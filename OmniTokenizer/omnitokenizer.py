@@ -79,9 +79,6 @@ class VQGAN(pl.LightningModule):
         if not hasattr(args, 'defer_temporal_pool'):
             args.defer_temporal_pool = False
             args.defer_spatial_pool = False
-
-        if not hasattr(args, 'q_strides'):
-            args.q_strides = '1' * args.spatial_depth
         
         if not hasattr(args, "spatial_pos"):
             args.spatial_pos = "rel"
@@ -107,7 +104,7 @@ class VQGAN(pl.LightningModule):
         
         self.encoder = OmniTokenizer_Encoder(
             image_size = args.resolution, image_channel=args.image_channels, norm_type=args.norm_type, 
-            block=args.enc_block, window_size=args.twod_window_size, q_strides=args.q_strides, spatial_pos=args.spatial_pos,
+            block=args.enc_block, window_size=args.twod_window_size, spatial_pos=args.spatial_pos,
             patch_embed = args.patch_embed, patch_size = args.patch_size, temporal_patch_size= args.temporal_patch_size, defer_temporal_pool=args.defer_temporal_pool, defer_spatial_pool=args.defer_spatial_pool,
             spatial_depth=args.spatial_depth, temporal_depth=args.temporal_depth, casual_in_temporal_transformer=args.casual_in_temporal_transformer, casual_in_peg=args.casual_in_peg, 
             dim = args.embedding_dim, dim_head=args.dim_head, heads=args.heads, attn_dropout=args.attn_dropout, ff_dropout=args.ff_dropout, ff_mult=args.ff_mult,
@@ -742,8 +739,6 @@ class VQGAN(pl.LightningModule):
         
         parser.add_argument('--enc_block', type=str, default='tttt')
         parser.add_argument('--dec_block', type=str, default='tttt')
-        parser.add_argument('--q_strides', type=str, default='1111')
-        parser.add_argument('--use_checkpoint', action="store_true")
 
         parser.add_argument('--twod_window_size', type=int, default=4)
         parser.add_argument('--temporal_patch_size', type=int, default=2)
@@ -776,7 +771,7 @@ class VQGAN(pl.LightningModule):
   
 
 class OmniTokenizer_Encoder(nn.Module):
-    def __init__(self, image_size, patch_embed, norm_type, block='tttt', window_size=4, q_strides='1111', spatial_pos="rel",
+    def __init__(self, image_size, patch_embed, norm_type, block='tttt', window_size=4, spatial_pos="rel",
                     image_channel=3, patch_size=16, temporal_patch_size=2, defer_temporal_pool=False, defer_spatial_pool=False,
                     spatial_depth=4, temporal_depth=4, casual_in_temporal_transformer=False, dim=512, 
                     casual_in_peg=True, dim_head=64, heads=8, attn_dropout=0., ff_dropout=0., ff_mult=4., initialize=False, sequence_length=17):
@@ -857,7 +852,6 @@ class OmniTokenizer_Encoder(nn.Module):
             ff_mult=ff_mult
         )
 
-        self.q_strides = q_strides
         self.enc_spatial_transformer = Transformer(depth=spatial_depth, block=block, window_size=window_size, spatial_pos=spatial_pos, **transformer_kwargs)
 
         
@@ -898,9 +892,7 @@ class OmniTokenizer_Encoder(nn.Module):
         tokens = rearrange(tokens, 'b t h w d -> (b t) (h w) d')
         
         # encode - spatial
-        # tokens = self.enc_spatial_transformer(
-        #     tokens, attn_bias_func=self.spatial_rel_pos_bias, video_shape=video_shape, q_strides=self.q_strides)
-        tokens = self.enc_spatial_transformer(tokens, video_shape=video_shape, q_strides=self.q_strides, is_spatial=True)
+        tokens = self.enc_spatial_transformer(tokens, video_shape=video_shape, is_spatial=True)
 
         hw = tokens.shape[1]
         new_h, new_w = int(math.sqrt(hw)), int(math.sqrt(hw))

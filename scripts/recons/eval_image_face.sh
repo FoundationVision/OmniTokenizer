@@ -1,7 +1,7 @@
 
 
 python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 2 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 --apply_noise --apply_blur \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --vqgan_ckpt "./ckpts_pub/celebahq.ckpt" \
@@ -11,7 +11,7 @@ python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_si
                       --perceptual_weight 4 --image_gan_weight 1 --video_gan_weight 1  --gan_feat_weight 4
 
 python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 2 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 --apply_noise --apply_blur \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --vqgan_ckpt "./ckpts_pub/ffhq.ckpt" \
@@ -21,7 +21,7 @@ python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_si
                       --perceptual_weight 4 --image_gan_weight 1 --video_gan_weight 1  --gan_feat_weight 4
 
 python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 4 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 --apply_noise --apply_blur --spatial_pos "rope" \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --vqgan_ckpt "./ckpts_pub/celebahq_ucf.ckpt" \
@@ -31,7 +31,7 @@ python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_si
                       --perceptual_weight 4 --image_gan_weight 1 --video_gan_weight 1  --gan_feat_weight 4
 
 python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 4 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 --apply_noise --apply_blur --spatial_pos "rope" \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --vqgan_ckpt "./ckpts_pub/ffhq_ucf.ckpt" \
@@ -42,7 +42,7 @@ python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_si
 
 
 python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 4 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 --apply_noise --apply_blur --spatial_pos "rope" \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --vqgan_ckpt "./ckpts_pub/celebahq_k600.ckpt" \
@@ -52,7 +52,7 @@ python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_si
                       --perceptual_weight 4 --image_gan_weight 1 --video_gan_weight 1  --gan_feat_weight 4
 
 python3 vqgan_eval.py --inference_type 'image' --patch_embed 'linear' --patch_size 8 --temporal_patch_size 4 --spatial_depth 4 --temporal_depth 4 --embedding_dim 512 --disc_layers 3 \
-                      --enc_block "ttww" --dec_block "tttt" --q_strides "1111" --twod_window_size 8 \
+                      --enc_block "ttww" --dec_block "tttt" --twod_window_size 8 \
                       --casual_in_temporal_transformer --casual_in_peg --dim_head 64 --heads 8 --apply_noise --apply_blur --spatial_pos "rope" \
                       --n_codes 8192 --codebook_dim 8 --l2_code --commitment_weight 1.0 --no_random_restart \
                       --vqgan_ckpt "./ckpts_pub/ffhq_k600.ckpt" \

@@ -10,12 +10,6 @@ from einops.layers.torch import Rearrange
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from fairscale.nn import checkpoint_wrapper
 
-def do_pool(x: torch.Tensor, stride: int) -> torch.Tensor:
-    # Refer to `Unroll` to see how this performs a maxpool-Nd
-    # B, N, C
-    return x.view(x.shape[0], stride, -1, x.shape[-1]).max(dim=1).values
-
-
 def exists(val):
     return val is not None
 
@@ -321,7 +315,8 @@ class PEG(nn.Module):
             #    temporal = True
             #    x = x.reshape(B, H, W, T, -1).permute(0, 3, 1, 2, 4) # B T H W C
             #else:
-            x = x.reshape(B, T, H, W, -1)
+            # x = x.reshape(B, T, H, W, -1)
+            x = x.reshape(*shape, -1)
         
         x = rearrange(x, 'b ... d -> b d ...') # B T H W C -> B C T H W
 
@@ -337,9 +332,10 @@ class PEG(nn.Module):
             #if temporal:
             #    x = rearrange(x, 'b t h w c -> (b h w) t c')
             #else:
-            x = rearrange(x, 'b t h w c -> (b t) (h w) c')
+            # x = rearrange(x, 'b t h w c -> (b t) (h w) c')
+            x = rearrange(x, 'b ... d -> b (...) d')
 
-        return x
+        return x.reshape(orig_shape)
 
 
 # attention

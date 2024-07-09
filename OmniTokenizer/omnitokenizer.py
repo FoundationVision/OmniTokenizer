@@ -105,7 +105,7 @@ class VQGAN(pl.LightningModule):
             image_size = args.resolution, image_channel=args.image_channels, norm_type=args.norm_type, 
             block=args.enc_block, window_size=args.twod_window_size, spatial_pos=args.spatial_pos,
             patch_embed = args.patch_embed, patch_size = args.patch_size, temporal_patch_size= args.temporal_patch_size, defer_temporal_pool=args.defer_temporal_pool, defer_spatial_pool=args.defer_spatial_pool,
-            spatial_depth=args.spatial_depth, temporal_depth=args.temporal_depth, casual_in_temporal_transformer=args.casual_in_temporal_transformer, casual_in_peg=args.casual_in_peg, 
+            spatial_depth=args.spatial_depth, temporal_depth=args.temporal_depth, causal_in_temporal_transformer=args.causal_in_temporal_transformer, causal_in_peg=args.causal_in_peg, 
             dim = args.embedding_dim, dim_head=args.dim_head, heads=args.heads, attn_dropout=args.attn_dropout, ff_dropout=args.ff_dropout, ff_mult=args.ff_mult,
             initialize=args.initialize_vit, sequence_length=args.sequence_length,
         )
@@ -113,7 +113,7 @@ class VQGAN(pl.LightningModule):
         self.decoder = OmniTokenizer_Decoder(
             image_size = args.resolution, image_channel=args.image_channels, norm_type=args.norm_type, block=args.dec_block, window_size=args.twod_window_size, spatial_pos=args.spatial_pos,
             patch_embed = args.patch_embed, patch_size = args.patch_size, temporal_patch_size= args.temporal_patch_size, defer_temporal_pool=args.defer_temporal_pool, defer_spatial_pool=args.defer_spatial_pool,
-            spatial_depth=len(args.dec_block), temporal_depth=args.temporal_depth, casual_in_temporal_transformer=args.casual_in_temporal_transformer, casual_in_peg=args.casual_in_peg, 
+            spatial_depth=len(args.dec_block), temporal_depth=args.temporal_depth, causal_in_temporal_transformer=args.causal_in_temporal_transformer, causal_in_peg=args.causal_in_peg, 
             dim = args.embedding_dim, dim_head=args.dim_head, heads=args.heads, attn_dropout=args.attn_dropout, ff_dropout=args.ff_dropout, ff_mult=args.ff_mult, gen_upscale=args.gen_upscale, 
             initialize=args.initialize_vit, sequence_length=args.sequence_length,
         )
@@ -747,8 +747,8 @@ class VQGAN(pl.LightningModule):
 
         parser.add_argument('--spatial_depth', type=int, default=4)
         parser.add_argument('--temporal_depth', type=int, default=4)
-        parser.add_argument('--casual_in_temporal_transformer', action="store_true") # tune the param
-        parser.add_argument('--casual_in_peg', action="store_true")
+        parser.add_argument('--causal_in_temporal_transformer', action="store_true") # tune the param
+        parser.add_argument('--causal_in_peg', action="store_true")
         parser.add_argument('--dim_head', type=int, default=64)
         parser.add_argument('--heads', type=int, default=8)
         parser.add_argument('--attn_dropout', type=float, default=0.)
@@ -772,8 +772,8 @@ class VQGAN(pl.LightningModule):
 class OmniTokenizer_Encoder(nn.Module):
     def __init__(self, image_size, patch_embed, norm_type, block='tttt', window_size=4, spatial_pos="rel",
                     image_channel=3, patch_size=16, temporal_patch_size=2, defer_temporal_pool=False, defer_spatial_pool=False,
-                    spatial_depth=4, temporal_depth=4, casual_in_temporal_transformer=False, dim=512, 
-                    casual_in_peg=True, dim_head=64, heads=8, attn_dropout=0., ff_dropout=0., ff_mult=4., initialize=False, sequence_length=17):
+                    spatial_depth=4, temporal_depth=4, causal_in_temporal_transformer=False, dim=512, 
+                    causal_in_peg=True, dim_head=64, heads=8, attn_dropout=0., ff_dropout=0., ff_mult=4., initialize=False, sequence_length=17):
         super().__init__()
         self.image_size = pair(image_size)
         self.patch_size = pair(patch_size)
@@ -847,14 +847,14 @@ class OmniTokenizer_Encoder(nn.Module):
             attn_dropout=attn_dropout,
             ff_dropout=ff_dropout,
             peg=True,
-            peg_causal=casual_in_peg,
+            peg_causal=causal_in_peg,
             ff_mult=ff_mult
         )
 
         self.enc_spatial_transformer = Transformer(depth=spatial_depth, block=block, window_size=window_size, spatial_pos=spatial_pos, **transformer_kwargs)
 
         
-        if casual_in_temporal_transformer:
+        if causal_in_temporal_transformer:
             transformer_kwargs["causal"] = True
 
         self.enc_temporal_transformer = Transformer(
@@ -950,8 +950,8 @@ class OmniTokenizer_Encoder(nn.Module):
 class OmniTokenizer_Decoder(nn.Module):
     def __init__(self, image_size, patch_embed, norm_type, block='tttt', window_size=4, spatial_pos="rel",
                     image_channel=3, patch_size=16, temporal_patch_size=2, defer_temporal_pool=False, defer_spatial_pool=False,
-                    spatial_depth=4, temporal_depth=4, casual_in_temporal_transformer=False, dim=512, 
-                    casual_in_peg=True, dim_head=64, heads=8, attn_dropout=0., ff_dropout=0., ff_mult=4., gen_upscale=None, initialize=False,
+                    spatial_depth=4, temporal_depth=4, causal_in_temporal_transformer=False, dim=512, 
+                    causal_in_peg=True, dim_head=64, heads=8, attn_dropout=0., ff_dropout=0., ff_mult=4., gen_upscale=None, initialize=False,
                     sequence_length=17):
         super().__init__()
         self.gen_upscale = gen_upscale
@@ -971,7 +971,7 @@ class OmniTokenizer_Decoder(nn.Module):
             attn_dropout=attn_dropout,
             ff_dropout=ff_dropout,
             peg=True,
-            peg_causal=casual_in_peg,
+            peg_causal=causal_in_peg,
             ff_mult=ff_mult
         )
 
@@ -981,7 +981,7 @@ class OmniTokenizer_Decoder(nn.Module):
         self.dec_spatial_transformer = Transformer(
             depth=spatial_depth, block=block, window_size=window_size, spatial_pos=spatial_pos, **transformer_kwargs)
         
-        if casual_in_temporal_transformer:
+        if causal_in_temporal_transformer:
             transformer_kwargs["causal"] = True
 
         self.dec_temporal_transformer = Transformer(

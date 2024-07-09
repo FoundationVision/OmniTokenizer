@@ -3,7 +3,6 @@ import imageio
 
 import math
 import numpy as np
-import skvideo.io
 
 import sys
 import pdb as pdb_original
@@ -245,8 +244,6 @@ def save_video_grid(video, fname, nrow=None, fps=6):
     for i in range(t):
         video.append(video_grid[i])
     imageio.mimsave(fname, video, fps=fps)
-    # skvideo.io.vwrite(fname, video_grid, inputdict={'-r': '5'})
-    # print('saved videos to', fname)
 
 
 def comp_getattr(args, attr_name, default=None):
